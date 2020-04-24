@@ -1,17 +1,11 @@
 const Sauce = require('../models/Sauce');
 
 exports.newSauce = (req, res, next) => {
+    const sauceObject = JSON.parse(req.body.sauce);
+    delete sauceObject._id;
     const sauce = new Sauce({
-        name: req.body.name,
-        manufacturer: req.body.manufacturer,
-        description: req.body.description,
-        mainingredient: req.body.mainingredient,
-        imageUrl: req.body.imageUrl,
-        heat: req.body.heat,
-        likes: req.body.likes,
-        dislikes: req.body.dislikes,
-        usersliked: req.body.usersliked,
-        usersdisliked: req.body.usersdisliked
+        ...sauceObject,
+        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
     });
     sauce.save().then(
         () => {
@@ -28,10 +22,12 @@ exports.newSauce = (req, res, next) => {
     );
 };
 
+
+
 exports.getAllSauces = (req, res, next) => {
     Sauce.find()
-        .then((things) => {
-            res.status(200).json(things);
+        .then((sauces) => {
+            res.status(200).json(sauces);
         })
         .catch((error) => {
             res.status(400).json({
@@ -56,10 +52,16 @@ exports.getOneSauce = (req, res, next) => {
 
 
 exports.modifySauce = (req, res, next) => {
+    const sauceObject = req.file ? {
+        ...JSON.parse(req.body.sauce),
+        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+    } : {
+        ...req.body
+    };
     Sauce.updateOne({
             _id: req.params.id
         }, {
-            ...req.body,
+            ...sauceObject,
             _id: req.params.id
         })
         .then(() => res.status(200).json({
@@ -69,6 +71,7 @@ exports.modifySauce = (req, res, next) => {
             error
         }));
 };
+
 
 exports.deleteOneSauce = (req, res, next) => {
     Sauce.deleteOne({
