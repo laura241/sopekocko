@@ -2,15 +2,14 @@ const Sauce = require('../models/Sauce');
 
 exports.newSauce = (req, res, next) => {
     const sauceObject = JSON.parse(req.body.sauce);
-    delete sauceObject._id;
     const sauce = new Sauce({
         ...sauceObject,
-        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
     });
     sauce.save().then(
         () => {
             res.status(201).json({
-                message: 'Post saved successfully!'
+                message: 'Post saved successfully!',
             });
         }
     ).catch(
@@ -23,10 +22,9 @@ exports.newSauce = (req, res, next) => {
 };
 
 
-
 exports.getAllSauces = (req, res, next) => {
     Sauce.find()
-        .then((sauces) => {
+        .then(sauces => {
             res.status(200).json(sauces);
         })
         .catch((error) => {
@@ -36,12 +34,13 @@ exports.getAllSauces = (req, res, next) => {
         });
 }
 
+
 exports.getOneSauce = (req, res, next) => {
     Sauce.findOne({
         _id: req.params.id
     }).then(
-        (thing) => {
-            res.status(200).json(thing);
+        (sauces) => {
+            res.status(200).json(sauces);
         }
     ).catch((error) => {
         res.status(404).json({
