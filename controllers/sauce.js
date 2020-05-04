@@ -82,4 +82,29 @@ exports.deleteOneSauce = (req, res, next) => {
         .catch(error => res.status(400).json({
             error
         }));
+};
+
+exports.postLikeSauce = (req, res, next) => {
+    const like = req.body.like;
+    const userId = req.body.userId;
+    switch (like) {
+        case 1:
+            usersliked.push(userId);
+            break;
+        case -1:
+            usersliked.remove(userId);
+            usersdisliked.push(userId);
+            break;
+        case 0:
+
+    }
+    sauce.save({
+
+        })
+        .then(() => res.status(200).json({
+            message: 'Action effectuée'
+        }))
+        .catch(error => res.status(400).json({
+            error
+        }))
 }

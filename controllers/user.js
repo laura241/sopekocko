@@ -17,7 +17,7 @@ exports.signup = (req, res, next) => {
                     .save()
                     .then(() =>
                         res.status(201).json({
-                            message: 'Utilisateur créé !',
+                            message: 'user created!',
                             userId: user._id,
                         })
                     )
@@ -34,11 +34,12 @@ exports.signup = (req, res, next) => {
             )
 
         res.status(201).json({
-            message: 'Utilisateur rajouté à la base de données'
+            message: 'user added to the database'
         })
     }
     next();
 }
+
 
 exports.login = (req, res, next) => {
     if (!req.body.email || !req.body.password) {
@@ -50,7 +51,7 @@ exports.login = (req, res, next) => {
             .then((user) => {
                 if (!user) {
                     return res.status(401).json({
-                        error: 'Utilisateur non trouvé !',
+                        error: 'User not found !',
                     })
                 }
                 bcrypt
@@ -58,7 +59,7 @@ exports.login = (req, res, next) => {
                     .then((valid) => {
                         if (!valid) {
                             return res.status(401).json({
-                                error: 'Mot de passe incorrect !',
+                                error: 'incorrect password !',
                             })
                         }
                         res.status(200).json({
@@ -67,7 +68,7 @@ exports.login = (req, res, next) => {
                                     userId: user._id,
                                 },
                                 'RANDOM_TOKEN_SECRET', {
-                                    expiresIn: '24h',
+                                    expiresIn: '2h',
                                 }
                             ),
                         })
