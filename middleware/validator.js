@@ -5,8 +5,6 @@ const {
 
 const userValidationRules = () => {
     return [
-        // username must be an email
-        body('mail').isEmail(),
         // password must be at least 6 chars long
         body('password').isLength({
             min: 6

@@ -1,12 +1,8 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-const {
-    userValidationRules,
-    validate
-} = require('../middleware/validator.js')
 
-exports.signup = (userValidationRules(), validate, (req, res) => {
+exports.signup = (req, res) => {
     if (!req.body.email || !req.body.password) {
         return (res.status(400).send(new Error('Bad request!')))
     } else {
@@ -41,7 +37,7 @@ exports.signup = (userValidationRules(), validate, (req, res) => {
             message: 'user added to the database'
         })
     }
-})
+}
 
 
 exports.login = (req, res) => {
