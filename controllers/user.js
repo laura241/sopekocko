@@ -1,8 +1,12 @@
-const bcrypt = require('bcrypt')
-const jwt = require('jsonwebtoken')
-const User = require('../models/User')
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const User = require('../models/User');
+const {
+    userValidationRules,
+    validate
+} = require('../middleware/validator.js')
 
-exports.signup = (req, res, next) => {
+exports.signup = (userValidationRules(), validate, (req, res) => {
     if (!req.body.email || !req.body.password) {
         return (res.status(400).send(new Error('Bad request!')))
     } else {
@@ -37,11 +41,10 @@ exports.signup = (req, res, next) => {
             message: 'user added to the database'
         })
     }
-    next();
-}
+})
 
 
-exports.login = (req, res, next) => {
+exports.login = (req, res) => {
     if (!req.body.email || !req.body.password) {
         return (res.status(400).send(new Error('Bad request!')))
     } else {

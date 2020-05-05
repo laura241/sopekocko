@@ -1,9 +1,7 @@
 const mongoose = require('mongoose');
-const uniqueValidator = require('mongoose-unique-validator');
-
 
 const userSchema = mongoose.Schema({
-  userId:{
+  userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   },
@@ -11,14 +9,15 @@ const userSchema = mongoose.Schema({
     type: String,
     required: true,
     unique: true,
+    //match: /^[_a-z0-9-]+(.[_a-z0-9-]+)*@[a-z0-9-]+(.[a-z0-9-]+)*(.[a-z]{2,4})$/
   },
 
   password: {
     type: String,
     required: true,
+    //match: /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,}$/
   },
 })
 
-userSchema.plugin(uniqueValidator);
 
 module.exports = mongoose.model('User', userSchema);
