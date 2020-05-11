@@ -6,15 +6,18 @@ const expressValidator = require('express-validator');
 
 const sauceRoutes = require('./routes/sauce');
 const userRoutes = require('./routes/user');
+const helmet = require('helmet');
 const morgan = require('morgan');
 
 const app = express();
 
+app.use(helmet());
 app.use(morgan('combined'));
 
 mongoose
   .connect(
-    'mongodb+srv://laura:PekockoSoProject20@cluster0-lbilb.mongodb.net/test?retryWrites=true&w=majority', {
+    'mongodb+srv://laura:PekockoSoProject20@cluster0-lbilb.mongodb.net/test?retryWrites=true&w=majority',
+    {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     },
