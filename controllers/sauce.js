@@ -16,8 +16,8 @@ exports.newSauce = (req, res, next) => {
             });
         })
         .catch(error => {
-            res.status(400).json({
-                error: error,
+            res.status(409).json({
+                message: 'The request cannot be treated',
             });
         });
 };
@@ -28,8 +28,8 @@ exports.getAllSauces = (req, res, next) => {
             res.status(200).json(sauces);
         })
         .catch(error => {
-            res.status(400).json({
-                error: error,
+            res.status(409).json({
+                message: 'The request cannot be treated',
             });
         });
 };
@@ -43,7 +43,7 @@ exports.getOneSauce = (req, res, next) => {
         })
         .catch(error => {
             res.status(404).json({
-                error: error,
+                message: 'Ressource not found',
             });
         });
 };
@@ -65,12 +65,12 @@ exports.modifySauce = (req, res, next) => {
         }, )
         .then(() =>
             res.status(200).json({
-                message: 'Objet modifié !',
+                message: 'The object was modificated!',
             }),
         )
         .catch(error =>
-            res.status(400).json({
-                error,
+            res.status(405).json({
+                message: 'The request cannot be treated',
             }),
         );
 };
@@ -81,12 +81,12 @@ exports.deleteOneSauce = (req, res, next) => {
         })
         .then(() =>
             res.status(200).json({
-                message: 'Objet supprimé !',
+                message: 'Deleted object!',
             }),
         )
         .catch(error =>
-            res.status(400).json({
-                error,
+            res.status(405).json({
+                message: 'The request cannot be treated',
             }),
         );
 };
@@ -94,21 +94,24 @@ exports.deleteOneSauce = (req, res, next) => {
 exports.postLikeSauce = (req, res) => {
     const userId = req.body.userId;
     const like = req.body.like;
-    const userSauceLikes = Sauce.find().where("usersliked").nin(userId);
-    const userSauceDislikes = Sauce.find().where("usersdisliked").nin(userId);
     if (like == 1) {
         Sauce.updateOne({
                 _id: req.params.id,
-            }, {
-                $inc: {
-                    likes: 1
+                usersliked: {
+                    $ne: userId
                 }
             }, {
-                usersliked: req.body.userId
-            })
-            .then(() => {
+                $inc: {
+                    likes: 1,
+                },
+
+                $push: {
+                    usersliked: userId,
+                },
+            }, )
+            .then((sauces) => {
                 res.status(201).json({
-                    message: 'Post saved successfully!',
+                    message: 'The like was saved successfully!',
                 });
             })
             .catch(error => {
@@ -119,13 +122,43 @@ exports.postLikeSauce = (req, res) => {
     } else if (like == -1) {
         Sauce.updateOne({
                 _id: req.params.id,
-            }, {
-                $inc: {
-                    dislikes: 1
+                usersdisliked: {
+                    $ne: userId
                 }
             }, {
-                userdisliked: req.body.userId
+                $inc: {
+                    dislikes: 1,
+                },
+
+                $push: {
+                    usersdisliked: userId,
+                },
+            }, )
+            .then((sauces) => {
+                res.status(201).json({
+                    message: 'The dislike was saved successfully!',
+                });
             })
+            .catch(error => {
+                res.status(400).json({
+                    error: error,
+                });
+            });
+    } else if (like == 0) {
+        Sauce.updateOne({
+                _id: req.params.id,
+                'usersliked': {
+                    $in: userId
+                }
+            }, {
+                $inc: {
+                    likes: -1,
+                },
+
+                $pull: {
+                    usersliked: userId,
+                },
+            }, )
             .then(() => {
                 res.status(201).json({
                     message: 'Post saved successfully!',
@@ -136,50 +169,6 @@ exports.postLikeSauce = (req, res) => {
                     error: error,
                 });
             });
-    } else if (like == 0) {
-        if (userSauceLikes != null) {
-            Sauce.updateOne({
-                    _id: req.params.id,
-                }, {
-                    likes: -1,
-                }, {
-                    $pull: {
-                        usersliked: req.body.userId
-                    }
-                })
-                .then(() => {
-                    res.status(201).json({
-                        message: 'Post saved successfully!',
-                    });
-                })
-                .catch(error => {
-                    res.status(400).json({
-                        error: error,
-                    });
-                });
 
-        } else if (userSauceDislikes != null) {
-            Sauce.updateOne({
-                        _id: req.params.id,
-                    }, {
-                        dislikes: -1,
-                    }, {
-                        $pull: {
-                            usersdisliked: req.body.userId
-                        }
-                    }
-
-                )
-                .then(() => {
-                    res.status(201).json({
-                        message: 'Post saved successfully!',
-                    });
-                })
-                .catch(error => {
-                    res.status(400).json({
-                        error: error,
-                    });
-                });
-        }
     }
-}
+};

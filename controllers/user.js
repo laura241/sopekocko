@@ -6,6 +6,22 @@ exports.signup = (req, res) => {
     if (!req.body.email || !req.body.password) {
         return (res.status(400).send(new Error('Bad request!')))
     } else {
+        User.findOne({
+                email: req.body.email
+            })
+            .then((user) => {
+                if (user) {
+                    return res.status(401).json({
+                        error: 'Try an other email !',
+                    })
+                }
+            })
+
+            .catch((error) =>
+                res.status(500).json({
+                    error,
+                })
+            )
         bcrypt
             .hash(req.body.password, 10)
             .then((hash) => {
@@ -38,6 +54,7 @@ exports.signup = (req, res) => {
         })
     }
 }
+
 
 
 exports.login = (req, res) => {

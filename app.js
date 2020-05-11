@@ -14,8 +14,7 @@ app.use(morgan('combined'));
 
 mongoose
   .connect(
-    'mongodb+srv://laura:PekockoSoProject20@cluster0-lbilb.mongodb.net/test?retryWrites=true&w=majority',
-    {
+    'mongodb+srv://laura:PekockoSoProject20@cluster0-lbilb.mongodb.net/test?retryWrites=true&w=majority', {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     },
