@@ -3,56 +3,43 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
 exports.signup = (req, res) => {
-    if (!req.body.email || !req.body.password) {
-        return (res.status(400).send(new Error('Bad request!')))
-    } else {
-        User.findOne({
-                email: req.body.email
-            })
-            .then((user) => {
-                if (user) {
-                    return res.status(401).json({
-                        error: 'Try an other email !',
-                    })
-                }
-            })
-
-            .catch((error) =>
-                res.status(500).json({
-                    error,
-                })
-            )
-        bcrypt
-            .hash(req.body.password, 10)
-            .then((hash) => {
-                const user = new User({
-                    email: req.body.email,
-                    password: hash,
-                })
-                user
-                    .save()
-                    .then(() =>
-                        res.status(201).json({
-                            message: 'user created!',
-                            userId: user._id,
-                        })
-                    )
-                    .catch((error) =>
-                        res.status(400).json({
-                            error,
-                        })
-                    )
-            })
-            .catch((error) =>
-                res.status(500).json({
-                    error,
-                })
-            )
-
-        res.status(201).json({
-            message: 'user added to the database'
+    User.findOne({
+            email: req.body.email
         })
-    }
+        .then((user) => {
+            if (user) {
+                return res.status(401).send({
+                    error: 'Try an other email !',
+                })
+            }
+
+            bcrypt
+                .hash(req.body.password, 10)
+                .then((hash) => {
+                    const user = new User({
+                        email: req.body.email,
+                        password: hash,
+                    })
+                    user
+                        .save()
+                        .then(() =>
+                            res.status(201).json({
+                                message: 'user created!',
+                                userId: user._id,
+                            })
+                        )
+                        .catch((error) =>
+                            res.status(400).json({
+                                error,
+                            })
+                        )
+                })
+        })
+        .catch((error) =>
+            res.status(500).json({
+                error,
+            })
+        )
 }
 
 
@@ -66,7 +53,7 @@ exports.login = (req, res) => {
             })
             .then((user) => {
                 if (!user) {
-                    return res.status(401).json({
+                    return res.status(401).send({
                         error: 'User not found !',
                     })
                 }
@@ -74,7 +61,7 @@ exports.login = (req, res) => {
                     .compare(req.body.password, user.password)
                     .then((valid) => {
                         if (!valid) {
-                            return res.status(401).json({
+                            return res.status(401).send({
                                 error: 'incorrect password !',
                             })
                         }
@@ -90,13 +77,13 @@ exports.login = (req, res) => {
                         })
                     })
                     .catch((error) =>
-                        res.status(500).json({
+                        res.status(500).send({
                             error,
                         })
                     )
             })
             .catch((error) =>
-                res.status(500).json({
+                res.status(500).send({
                     error,
                 })
             )

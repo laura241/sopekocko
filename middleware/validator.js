@@ -19,7 +19,7 @@ const validate = (req, res, next) => {
     }
     const extractedErrors = []
     errors.array().map(err => extractedErrors.push({
-        [err.param]: err.msg
+        [err.param]: 'must be at least 6  chars long'
     }))
 
     return res.status(422).json({

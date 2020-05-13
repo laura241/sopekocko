@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+
 const userSchema = mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -16,6 +17,7 @@ const userSchema = mongoose.Schema({
     required: true,
   },
 })
+
 
 
 module.exports = mongoose.model('User', userSchema);
