@@ -10,9 +10,17 @@ exports.newSauce = (req, res, next) => {
     });
     sauce
         .save()
+    Sauce.update({}, {
+            likes: 0,
+            dislikes: 0,
+            usersliked: [''],
+            usersdisliked: [''],
+        }, {
+            multi: true
+        })
         .then(() => {
-            res.status(201).json({
-                message: 'Post saved successfully!',
+            res.status(201).send({
+                message: 'Sauce saved successfully!',
             });
         })
         .catch(error => {
@@ -25,10 +33,10 @@ exports.newSauce = (req, res, next) => {
 exports.getAllSauces = (req, res, next) => {
     Sauce.find()
         .then(sauces => {
-            res.status(200).json(sauces);
+            res.status(200).send(sauces);
         })
         .catch(error => {
-            res.status(409).json({
+            res.status(409).send({
                 message: 'The request cannot be treated',
             });
         });
@@ -39,10 +47,10 @@ exports.getOneSauce = (req, res, next) => {
             _id: req.params.id,
         })
         .then(sauces => {
-            res.status(200).json(sauces);
+            res.status(200).send(sauces);
         })
         .catch(error => {
-            res.status(404).json({
+            res.status(404).send({
                 message: 'Ressource not found',
             });
         });
@@ -64,12 +72,12 @@ exports.modifySauce = (req, res, next) => {
             _id: req.params.id,
         }, )
         .then(() =>
-            res.status(200).json({
-                message: 'The object was modificated!',
+            res.status(200).send({
+                message: 'The sauce was modificated!',
             }),
         )
         .catch(error =>
-            res.status(405).json({
+            res.status(405).send({
                 message: 'The request cannot be treated',
             }),
         );
@@ -80,12 +88,12 @@ exports.deleteOneSauce = (req, res, next) => {
             _id: req.params.id,
         })
         .then(() =>
-            res.status(200).json({
+            res.status(200).send({
                 message: 'Deleted object!',
             }),
         )
         .catch(error =>
-            res.status(405).json({
+            res.status(405).send({
                 message: 'The request cannot be treated',
             }),
         );
@@ -94,23 +102,36 @@ exports.deleteOneSauce = (req, res, next) => {
 exports.postLikeSauce = (req, res) => {
     const userId = req.body.userId;
     const like = req.body.like;
+    const findSauceUserLikes = Sauce.findOne({
+        _id: req.params.id,
+        usersliked: {
+            $in: userId,
+        },
+    });
+    const findSauceUserDislikes = Sauce.findOne({
+        _id: req.params.id,
+        usersdisliked: {
+            $in: userId,
+        },
+    });
+
     if (like == 1) {
         Sauce.updateOne({
                 _id: req.params.id,
                 usersliked: {
-                    $ne: userId
-                }
+                    $ne: userId,
+                },
             }, {
                 $inc: {
-                    likes: 1,
+                    likes: +1,
                 },
 
                 $push: {
                     usersliked: userId,
                 },
             }, )
-            .then((sauces) => {
-                res.status(201).json({
+            .then(sauces => {
+                res.status(201).send({
                     message: 'The like was saved successfully!',
                 });
             })
@@ -123,52 +144,79 @@ exports.postLikeSauce = (req, res) => {
         Sauce.updateOne({
                 _id: req.params.id,
                 usersdisliked: {
-                    $ne: userId
-                }
+                    $ne: userId,
+                },
             }, {
                 $inc: {
-                    dislikes: 1,
+                    dislikes: +1,
                 },
 
                 $push: {
                     usersdisliked: userId,
                 },
             }, )
-            .then((sauces) => {
-                res.status(201).json({
+            .then(sauces => {
+                res.status(201).send({
                     message: 'The dislike was saved successfully!',
                 });
             })
             .catch(error => {
-                res.status(400).json({
+                res.status(400).send({
                     error: error,
                 });
             });
-    } else if (like == 0) {
-        Sauce.updateOne({
-                _id: req.params.id,
-                'usersliked': {
-                    $in: userId
-                }
-            }, {
-                $inc: {
-                    likes: -1,
-                },
+    } else {
+        if (findSauceUserLikes) {
+            Sauce.updateOne({
+                    _id: req.params.id,
+                    usersliked: {
+                        $in: userId,
+                    },
+                }, {
+                    $inc: {
+                        likes: -1,
+                    },
 
-                $pull: {
-                    usersliked: userId,
-                },
-            }, )
-            .then(() => {
-                res.status(201).json({
-                    message: 'Post saved successfully!',
+                    $pull: {
+                        usersliked: userId,
+                    },
+                }, )
+                .then(() => {
+                    res.status(201).send({
+                        message: 'Action saved successfully!',
+                    });
+                })
+                .catch(error => {
+                    res.status(400).json({
+                        error: error,
+                    });
                 });
-            })
-            .catch(error => {
-                res.status(400).json({
-                    error: error,
-                });
-            });
+        }
+        if (findSauceUserDislikes) {
+            Sauce.updateOne({
+                    _id: req.params.id,
+                    usersdisliked: {
+                        $in: userId,
+                    },
+                }, {
+                    $inc: {
+                        dislikes: -1,
+                    },
 
+                    $pull: {
+                        usersdisliked: userId,
+                    },
+                }, )
+                .then(() => {
+                    res.status(201).send({
+                        message: 'Action saved successfully!',
+                    });
+                })
+                .catch(error => {
+                    res.status(400).json({
+                        error: error,
+                    });
+                });
+        }
     }
 };
