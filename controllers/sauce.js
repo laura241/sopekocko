@@ -1,5 +1,7 @@
 const Sauce = require('../models/Sauce');
 
+
+
 exports.newSauce = (req, res, next) => {
     const sauceObject = JSON.parse(req.body.sauce);
     const sauce = new Sauce({
@@ -99,22 +101,26 @@ exports.deleteOneSauce = (req, res, next) => {
         );
 };
 
-exports.postLikeSauce = (req, res) => {
+exports.postLikeSauce = async function (req, res) {
     const userId = req.body.userId;
     const like = req.body.like;
     const findSauceUserLikes = Sauce.findOne({
         _id: req.params.id,
         usersliked: {
-            $in: userId,
-        },
-    });
-    const findSauceUserDislikes = Sauce.findOne({
-        _id: req.params.id,
-        usersdisliked: {
-            $in: userId,
+            tags: {
+                $in: userId
+            }
         },
     });
 
+    const findSauceUserDislikes = Sauce.findOne({
+        _id: req.params.id,
+        usersdisliked: {
+            tags: {
+                $in: userId
+            }
+        },
+    });;
     if (like == 1) {
         Sauce.updateOne({
                 _id: req.params.id,
@@ -219,4 +225,4 @@ exports.postLikeSauce = (req, res) => {
                 });
         }
     }
-};
+}

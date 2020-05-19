@@ -1,4 +1,5 @@
 const express = require('express');
+const dotenv = require('dotenv').config();
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const mongoose = require('mongoose');
@@ -16,17 +17,17 @@ const app = express();
 
 mongoose
   .connect(
-    'mongodb+srv://laura:PekockoSoProject20@cluster0-lbilb.mongodb.net/test?retryWrites=true&w=majority',
-    {
+    process.env.Mongo_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     },
   )
+
   .then(() => console.log('Connexion à MongoDB réussie !'))
   .catch(() => console.log('Connexion à MongoDB échouée !'));
 
 app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:4200');
+  res.setHeader('Access-Control-Allow-Origin', process.env.UI_URI);
   res.setHeader(
     'Access-Control-Allow-Headers',
     'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization',
