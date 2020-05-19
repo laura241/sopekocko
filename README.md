@@ -11,6 +11,7 @@ For the .env file, you have to run `cp .env.dist .env` and then assign the value
 ### Common setup ###
 
 Clone the repo and install the dependencies.
+
 `npm install`
 
 Install Nodemon
